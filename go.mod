@@ -1,4 +1,4 @@
-module NaxiStudio/NaxiServer
+module github.com/BrunoCardosoFS/NaxiServer
 
 go 1.25.1
 
