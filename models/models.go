@@ -8,8 +8,6 @@ type Folder struct {
 }
 
 type CdnFileEntry struct {
-	Name    string `json:"name"`
-	Size    int64  `json:"size"`
-	IsDir   bool   `json:"isDir"`
-	ModTime int64  `json:"modTime"`
+	Name  string `json:"name"`
+	IsDir bool   `json:"isDir"`
 }

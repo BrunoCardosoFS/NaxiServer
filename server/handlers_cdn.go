@@ -14,8 +14,6 @@ func (s *Server) registerCdnRoutes() {
 	dbPath := "D:/Arquivos/Projetos/NaxiStudio/NaxiStudioApps/NaxiStudioFlow/build/db/"
 	catalogPath := dbPath + "/catalog.json"
 
-	s.router.Static("/db", dbPath)
-
 	file, err := os.Open(catalogPath)
 	if err != nil {
 		log.Panic(err)
@@ -30,12 +28,19 @@ func (s *Server) registerCdnRoutes() {
 
 	cdnGroup := s.router.Group("/cdn")
 
+	// dbURLPrefix := "/cdn/db/"
+	// fileDbRoute := "/db/*filepath"
+	// fileDbServerHandler := http.FileServer(http.Dir(dbPath))
+	// strippedDbHandler := http.StripPrefix(dbURLPrefix, fileDbServerHandler)
+	// cdnGroup.GET(fileDbRoute, gin.WrapH(strippedDbHandler))
+
 	for _, info := range categories {
 		categoryID := info.ID
 		categoryPath := info.Path
 		cdnURLPrefix := "/cdn/" + categoryID
 
 		cdnGroup.GET("/"+categoryID, s.handleCdnList(categoryPath))
+
 		fileRoute := "/" + categoryID + "/*filepath"
 		fileServerHandler := http.FileServer(http.Dir(categoryPath))
 		strippedHandler := http.StripPrefix(cdnURLPrefix, fileServerHandler)
@@ -58,17 +63,9 @@ func (s *Server) handleCdnList(path string) gin.HandlerFunc {
 
 		var files []models.CdnFileEntry
 		for _, entry := range entries {
-			info, err := entry.Info()
-			if err != nil {
-				log.Printf("Erro ao ler info do arquivo %s: %v", entry.Name(), err)
-				continue
-			}
-
 			files = append(files, models.CdnFileEntry{
-				Name:    entry.Name(),
-				Size:    info.Size(),
-				IsDir:   entry.IsDir(),
-				ModTime: info.ModTime().Unix(),
+				Name:  entry.Name(),
+				IsDir: entry.IsDir(),
 			})
 		}
 

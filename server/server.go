@@ -42,5 +42,6 @@ func (s *Server) Start(addr string) error {
 }
 
 func (s *Server) registerFrontendRoutes() {
+	s.router.StaticFile("/favicon.ico", "./icons/icon.ico")
 	s.router.Static("/app", "./static")
 }

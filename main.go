@@ -45,7 +45,7 @@ func onReady() {
 
 	go func() {
 		for range mSettings.ClickedCh {
-			var args = []string{"/c", "start", "http://localhost:8000/config.html"}
+			var args = []string{"/c", "start", "http://localhost:8000/app/config.html"}
 
 			if err := exec.Command("cmd", args...).Start(); err != nil {
 				log.Fatalf("Error opening URL: %v", err)
