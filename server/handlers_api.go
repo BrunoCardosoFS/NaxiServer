@@ -1,28 +1,32 @@
 package server
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (s *Server) registerApiRoutes() {
 	log.Println("Registrando rotas da API...")
-	s.mux.HandleFunc("/api/status", s.handleApiStatus())
+
+	api := s.router.Group("/api")
+	{
+		api.GET("/status", s.handleApiStatus())
+		api.POST("/status", s.handleApiStatus()) // O log mostra acessos POST
+	}
 }
 
 // handleApiStatus
-func (s *Server) handleApiStatus() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-
-		log.Println("Server API: '/api/status' accessed: " + r.Method)
+func (s *Server) handleApiStatus() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log.Println("Server API: '/api/status' accessed: " + c.Request.Method)
 
 		response := map[string]string{
 			"status":  "online",
 			"message": "NaxiServer API está funcionando!",
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		c.JSON(http.StatusOK, response)
 	}
 }

@@ -4,15 +4,19 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
-	mux *http.ServeMux
+	router *gin.Engine
 }
 
 func NewServer() *Server {
+	router := gin.Default()
+
 	srv := &Server{
-		mux: http.NewServeMux(),
+		router: router,
 	}
 
 	srv.registerApiRoutes()
@@ -23,20 +27,20 @@ func NewServer() *Server {
 }
 
 func (s *Server) Start(addr string) error {
+	log.Println("Server: Servidor online na porta", addr)
+
 	server := &http.Server{
 		Addr:              addr,
-		Handler:           s.mux,
+		Handler:           s.router, // <-- AQUI
 		WriteTimeout:      time.Second * 5,
 		ReadHeaderTimeout: time.Second * 5,
 		ReadTimeout:       time.Second * 5,
 		IdleTimeout:       time.Second * 60,
 	}
 
-	log.Println("Server: Servidor online na porta", addr)
 	return server.ListenAndServe()
 }
 
 func (s *Server) registerFrontendRoutes() {
-	pageRoot := http.FileServer(http.Dir("./static"))
-	s.mux.Handle("/", pageRoot)
+	s.router.Static("/app", "./static")
 }
