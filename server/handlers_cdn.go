@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/BrunoCardosoFS/NaxiServer/models"
 	"github.com/gin-gonic/gin"
@@ -27,12 +29,6 @@ func (s *Server) registerCdnRoutes() {
 	}
 
 	cdnGroup := s.router.Group("/cdn")
-
-	// dbURLPrefix := "/cdn/db/"
-	// fileDbRoute := "/db/*filepath"
-	// fileDbServerHandler := http.FileServer(http.Dir(dbPath))
-	// strippedDbHandler := http.StripPrefix(dbURLPrefix, fileDbServerHandler)
-	// cdnGroup.GET(fileDbRoute, gin.WrapH(strippedDbHandler))
 
 	for _, info := range categories {
 		categoryID := info.ID
@@ -64,8 +60,9 @@ func (s *Server) handleCdnList(path string) gin.HandlerFunc {
 		var files []models.CdnFileEntry
 		for _, entry := range entries {
 			files = append(files, models.CdnFileEntry{
-				Name:  entry.Name(),
-				IsDir: entry.IsDir(),
+				Name:     entry.Name(),
+				FileType: strings.ToLower(filepath.Ext(entry.Name())),
+				IsDir:    entry.IsDir(),
 			})
 		}
 

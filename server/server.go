@@ -13,6 +13,7 @@ type Server struct {
 }
 
 func NewServer() *Server {
+	// gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	srv := &Server{
@@ -31,7 +32,7 @@ func (s *Server) Start(addr string) error {
 
 	server := &http.Server{
 		Addr:              addr,
-		Handler:           s.router, // <-- AQUI
+		Handler:           s.router,
 		WriteTimeout:      time.Second * 5,
 		ReadHeaderTimeout: time.Second * 5,
 		ReadTimeout:       time.Second * 5,
@@ -42,6 +43,6 @@ func (s *Server) Start(addr string) error {
 }
 
 func (s *Server) registerFrontendRoutes() {
-	s.router.StaticFile("/favicon.ico", "./icons/icon.ico")
-	s.router.Static("/app", "./static")
+	// Falta implementar algo mais sofisticado
+	s.router.NoRoute(gin.WrapH(http.FileServer(gin.Dir("static", false))))
 }

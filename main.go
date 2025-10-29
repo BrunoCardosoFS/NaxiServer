@@ -8,6 +8,7 @@ import (
 	"os/exec"
 
 	"fyne.io/systray"
+	"github.com/BrunoCardosoFS/NaxiServer/database"
 	"github.com/BrunoCardosoFS/NaxiServer/server"
 )
 
@@ -45,13 +46,17 @@ func onReady() {
 
 	go func() {
 		for range mSettings.ClickedCh {
-			var args = []string{"/c", "start", "http://localhost:8000/app/config.html"}
+			var args = []string{"/c", "start", "http://localhost:8000/app/config/"}
 
 			if err := exec.Command("cmd", args...).Start(); err != nil {
 				log.Fatalf("Error opening URL: %v", err)
 			}
 		}
 	}()
+
+	const dbPath string = "D:/Arquivos/Projetos/NaxiStudio/NaxiStudioApps/NaxiStudioFlow/build/db/"
+
+	database.InitDB("file:" + dbPath + "NaxiStudio.db" + "?_journal_mode=WAL&_busy_timeout=5000")
 
 	srv := server.NewServer()
 
@@ -61,5 +66,7 @@ func onReady() {
 }
 
 func onExit() {
+	database.DB.Close()
+
 	println("Encerrando servidor")
 }

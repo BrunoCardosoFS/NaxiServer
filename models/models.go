@@ -8,6 +8,15 @@ type Folder struct {
 }
 
 type CdnFileEntry struct {
-	Name  string `json:"name"`
-	IsDir bool   `json:"isDir"`
+	Name     string `json:"name"`
+	FileType string `json:"type"`
+	IsDir    bool   `json:"isDir"`
+}
+
+type User struct {
+	ID           uint   `json:"id"`
+	Username     string `json:"user"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
+	Type         uint   `json:"type"`
 }
