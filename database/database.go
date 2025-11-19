@@ -15,14 +15,14 @@ func InitDB(dataSourceName string) {
 	DB, err = sql.Open("sqlite3", dataSourceName)
 
 	if err != nil {
-		log.Fatalf("Erro ao abrir banco de dados: %v", err)
+		log.Fatalf("Error opening database: %v", err)
 	}
 
 	if err = DB.Ping(); err != nil {
-		log.Fatalf("Erro ao conectar ao banco de dados: %v", err)
+		log.Fatalf("Error connecting to the database: %v", err)
 	}
 
-	log.Println("Banco de dados conectado com sucesso.")
+	log.Println("Database successfully connected.")
 
 	DB.SetMaxOpenConns(25)
 	DB.SetMaxIdleConns(25)
@@ -61,19 +61,45 @@ func createTables() {
 
 	musicalTable := `
 		CREATE TABLE IF NOT EXISTS musical_items (
-			id        INTEGER PRIMARY KEY AUTOINCREMENT,
-			block_id  INTEGER REFERENCES blocks (id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-			file_path TEXT    NOT NULL,
-			position  INTEGER NOT NULL
+			id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+			block_id              INTEGER REFERENCES blocks (id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+			file_path             TEXT    NOT NULL,
+			block_position        INTEGER NOT NULL,
+			start_point           INTEGER,
+			end_point             INTEGER,
+			intro_point           INTEGER,
+			mix_start_point       INTEGER,
+			mix_end_point         INTEGER,
+			pre_ramp_up_level     INTEGER,
+			post_ramp_down_level  INTEGER,
+			fade_in_end_point     INTEGER,
+			ramp_up_start_point   INTEGER,
+			ramp_up_end_point     INTEGER,
+			ramp_down_start_point INTEGER,
+			ramp_down_end_point   INTEGER,
+			fade_out_start_point  INTEGER
 		);
 	`
 
 	commercialTable := `
 		CREATE TABLE IF NOT EXISTS commercial_items (
-			id        INTEGER PRIMARY KEY AUTOINCREMENT,
-			block_id  INTEGER REFERENCES blocks (id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-			file_path TEXT    NOT NULL,
-			position  INTEGER NOT NULL
+			id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+			block_id              INTEGER REFERENCES blocks (id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+			file_path             TEXT    NOT NULL,
+			block_position        INTEGER NOT NULL,
+			start_point           INTEGER,
+			end_point             INTEGER,
+			intro_point           INTEGER,
+			mix_start_point       INTEGER,
+			mix_end_point         INTEGER,
+			pre_ramp_up_level     INTEGER,
+			post_ramp_down_level  INTEGER,
+			fade_in_end_point     INTEGER,
+			ramp_up_start_point   INTEGER,
+			ramp_up_end_point     INTEGER,
+			ramp_down_start_point INTEGER,
+			ramp_down_end_point   INTEGER,
+			fade_out_start_point  INTEGER
 		);
 	`
 
@@ -89,29 +115,29 @@ func createTables() {
 	`
 
 	execSQL(catalogTable)
-	log.Println("Tabela 'catalog' verificada/criada.")
+	log.Println("Table 'catalog' verified/created.")
 
 	execSQL(usersTable)
-	log.Println("Tabela 'users' verificada/criada.")
+	log.Println("Table 'users' verified/created.")
 
 	execSQL(blocksTable)
-	log.Println("Tabela 'blocks' verificada/criada.")
+	log.Println("Table 'blocks' verified/created.")
 
 	execSQL(musicalTable)
-	log.Println("Tabela 'musical_items' verificada/criada.")
+	log.Println("Table 'musical_items' verified/created.")
 
 	execSQL(commercialTable)
-	log.Println("Tabela 'commercial_items' verificada/criada.")
+	log.Println("Table 'commercial_items' verified/created.")
 
 	execSQL(loggerTable)
-	log.Println("Tabela 'logger' verificada/criada.")
+	log.Println("Table 'logger' verified/created.")
 }
 
 func execSQL(sqlStatement string) {
 	statement, err := DB.Prepare(sqlStatement)
 
 	if err != nil {
-		log.Fatal("Erro ao preparar statement de criação de tabela: ", err)
+		log.Fatal("Error preparing table creation statement: ", err)
 	}
 
 	statement.Exec()

@@ -28,7 +28,7 @@ func NewServer() *Server {
 }
 
 func (s *Server) Start(addr string) error {
-	log.Println("Server: Servidor online na porta", addr)
+	log.Println("Server: Online server on port", addr)
 
 	server := &http.Server{
 		Addr:              addr,

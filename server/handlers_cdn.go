@@ -52,7 +52,7 @@ func (s *Server) handleCdnList(path string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		entries, err := os.ReadDir(path)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Não foi possível ler o diretório"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "The directory could not be read."})
 			log.Printf("Erro ao ler diretório %s: %v", path, err)
 			return
 		}

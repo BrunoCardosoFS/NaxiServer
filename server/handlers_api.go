@@ -40,8 +40,7 @@ func (s *Server) handleApiStatus() gin.HandlerFunc {
 		log.Println("Server API: '/api/status' accessed: " + c.Request.Method)
 
 		response := map[string]string{
-			"status":  "online",
-			"message": "NaxiServer API está funcionando!",
+			"status": "online",
 		}
 
 		c.JSON(http.StatusOK, response)
@@ -52,8 +51,8 @@ func (s *Server) handleApiCatalog() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		categories, err := database.GetCatalog()
 		if err != nil {
-			log.Printf("Erro ao buscar catálogo no DB: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Não foi possível ler o catálogo"})
+			log.Printf("Error retrieving catalog from DB: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "The catalog could not be read."})
 			return
 		}
 
@@ -65,18 +64,18 @@ func (s *Server) handleApiAddFolderInCatalog() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var newCategory models.Folder
 		if err := c.ShouldBindJSON(&newCategory); err != nil {
-			log.Printf("Erro ao vincular JSON: %v", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido: " + err.Error()})
+			log.Printf("Error binding JSON: %v", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON: " + err.Error()})
 			return
 		}
 
 		if newCategory.ID == "" || newCategory.Title == "" || newCategory.Path == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Todos os campos são obrigatórios"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "All fields are required."})
 			return
 		}
 
 		if err := database.AddFolderInCatalog(newCategory); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao salvar no banco: " + err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error saving to database: " + err.Error()})
 			return
 		}
 
