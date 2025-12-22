@@ -13,8 +13,7 @@ import (
 )
 
 func (s *Server) registerCdnRoutes() {
-	dbPath := "D:/Arquivos/Projetos/NaxiStudio/NaxiStudioApps/NaxiStudioFlow/build/db/"
-	catalogPath := dbPath + "/catalog.json"
+	catalogPath := s.dbPath + "/catalog.json"
 
 	file, err := os.Open(catalogPath)
 	if err != nil {
@@ -22,15 +21,15 @@ func (s *Server) registerCdnRoutes() {
 	}
 	defer file.Close()
 
-	var categories []models.Folder
-	err = json.NewDecoder(file).Decode(&categories)
+	var folder []models.Folder
+	err = json.NewDecoder(file).Decode(&folder)
 	if err != nil {
 		log.Panic(err)
 	}
 
 	cdnGroup := s.router.Group("/cdn")
 
-	for _, info := range categories {
+	for _, info := range folder {
 		categoryID := info.ID
 		categoryPath := info.Path
 		cdnURLPrefix := "/cdn/" + categoryID
@@ -53,7 +52,7 @@ func (s *Server) handleCdnList(path string) gin.HandlerFunc {
 		entries, err := os.ReadDir(path)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "The directory could not be read."})
-			log.Printf("Erro ao ler diretório %s: %v", path, err)
+			log.Printf("Error reading directory %s: %v", path, err)
 			return
 		}
 

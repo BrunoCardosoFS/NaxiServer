@@ -10,21 +10,23 @@ import (
 
 type Server struct {
 	router *gin.Engine
+	dbPath string
 }
 
-func NewServer() *Server {
+func NewServer(databasePath string) *Server {
 	// gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
-	srv := &Server{
+	server := &Server{
 		router: router,
+		dbPath: databasePath,
 	}
 
-	srv.registerApiRoutes()
-	srv.registerCdnRoutes()
-	srv.registerFrontendRoutes()
+	server.registerApiRoutes()
+	server.registerCdnRoutes()
+	server.registerFrontendRoutes()
 
-	return srv
+	return server
 }
 
 func (s *Server) Start(addr string) error {

@@ -1,5 +1,10 @@
 package models
 
+type Settings struct {
+	DbPath string `json:"dbpath"`
+	Port   string `json:"port"`
+}
+
 type Folder struct {
 	Title string `json:"title"`
 	Path  string `json:"path"`

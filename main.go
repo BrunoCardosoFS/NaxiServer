@@ -5,7 +5,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"os/exec"
 
 	"fyne.io/systray"
 	"github.com/BrunoCardosoFS/NaxiServer/database"
@@ -31,36 +30,13 @@ func main() {
 }
 
 func onReady() {
-	systray.SetIcon(iconData)
-	systray.SetTitle("NaxiServer")
-	systray.SetTooltip("NaxiServer")
+	settings := getSettings()
+	runSystray(settings.Port)
 
-	mSettings := systray.AddMenuItem("Configurações", "Abrir Configurações")
-	systray.AddSeparator()
-	mQuit := systray.AddMenuItem("Encerrar", "Encerrar servidor")
+	database.InitDB("file:" + settings.DbPath + "naxistudio.db" + "?_journal_mode=WAL&_busy_timeout=5000")
 
-	go func() {
-		<-mQuit.ClickedCh
-		systray.Quit()
-	}()
-
-	go func() {
-		for range mSettings.ClickedCh {
-			var args = []string{"/c", "start", "http://localhost:8000/app/config/"}
-
-			if err := exec.Command("cmd", args...).Start(); err != nil {
-				log.Fatalf("Error opening URL: %v", err)
-			}
-		}
-	}()
-
-	const dbPath string = "D:/Arquivos/Projetos/NaxiStudio/NaxiStudioApps/NaxiStudioFlow/build/db/"
-
-	database.InitDB("file:" + dbPath + "NaxiStudio.db" + "?_journal_mode=WAL&_busy_timeout=5000")
-
-	srv := server.NewServer()
-
-	if err := srv.Start(":8000"); err != nil {
+	srv := server.NewServer(settings.DbPath)
+	if err := srv.Start(settings.Port); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -68,5 +44,5 @@ func onReady() {
 func onExit() {
 	database.DB.Close()
 
-	println("Encerrando servidor")
+	log.Println("Shutting down server")
 }
