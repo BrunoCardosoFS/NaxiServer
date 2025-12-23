@@ -42,12 +42,12 @@ func DeleteUser(user string) error {
 }
 
 func GetUserByUsername(username string) (*models.User, error) {
-	sql := `SELECT id, user, email, password_hash, type FROM users WHERE user = ?`
+	sql := `SELECT id, user, name, email, password_hash, type FROM users WHERE user = ?`
 
 	row := DB.QueryRow(sql, username)
 
 	var u models.User
-	err := row.Scan(&u.ID, &u.Username, &u.Email, &u.PasswordHash, &u.Type)
+	err := row.Scan(&u.ID, &u.Username, &u.Name, &u.Email, &u.PasswordHash, &u.Type)
 
 	if err != nil {
 		log.Printf("Error retrieving user: %v", err)

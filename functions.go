@@ -11,9 +11,12 @@ import (
 )
 
 func runSystray(port string) {
-	systray.SetIcon(iconData)
+	systray.SetIcon(iconSuccessData)
 	systray.SetTitle("NaxiServer")
-	systray.SetTooltip("NaxiServer")
+	systray.SetTooltip("NaxiServer Online - localhost" + port)
+
+	systray.AddMenuItem("localhost"+port, "Servidor online")
+	systray.AddSeparator()
 
 	mSettings := systray.AddMenuItem("Configurações", "Abrir Configurações")
 	mLicense := systray.AddMenuItem("Sobre", "Sobre o NaxiStudio Server")

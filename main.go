@@ -11,8 +11,11 @@ import (
 	"github.com/BrunoCardosoFS/NaxiServer/server"
 )
 
-//go:embed icons/icon.ico
-var iconData []byte
+//go:embed icons/icon_success.ico
+var iconSuccessData []byte
+
+// // go:embed icons/icon_failure.ico
+// var iconFailureData []byte
 
 func main() {
 	// Logs

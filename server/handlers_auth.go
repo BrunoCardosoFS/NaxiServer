@@ -64,6 +64,7 @@ func (s *Server) handleLogin() gin.HandlerFunc {
 		}
 
 		user, err := database.GetUserByUsername(creds.Username)
+
 		if err != nil {
 			if err == sql.ErrNoRows {
 				log.Println("Login: User not found:", creds.Username)
@@ -87,7 +88,7 @@ func (s *Server) handleLogin() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"token": tokenString})
+		c.JSON(http.StatusOK, gin.H{"token": tokenString, "user": user.Username, "name": user.Name, "email": user.Email, "type": user.Type})
 	}
 }
 

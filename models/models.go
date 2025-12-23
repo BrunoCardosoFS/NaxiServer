@@ -21,6 +21,7 @@ type CdnFileEntry struct {
 type User struct {
 	ID           uint   `json:"id"`
 	Username     string `json:"user"`
+	Name         string `json:"name"`
 	Email        string `json:"email"`
 	PasswordHash string `json:"password_hash"`
 	Type         uint   `json:"type"`

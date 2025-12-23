@@ -14,7 +14,7 @@ type Server struct {
 }
 
 func NewServer(databasePath string) *Server {
-	// gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	server := &Server{
