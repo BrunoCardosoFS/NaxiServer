@@ -28,13 +28,13 @@ func (s *Server) registerApiRoutes() {
 		protected.Use(auth.AuthMiddleware())
 		{
 			protected.POST("/catalog", s.handleApiAddFolderInCatalog())
-			protected.DELETE("/users/:username", s.handleDeleteUser())
 		}
 
 		UsersRoutes := api.Group("/")
 		UsersRoutes.Use(auth.UsersMiddleware())
 		{
-			UsersRoutes.POST("/auth/register", s.handleRegister())
+			UsersRoutes.DELETE("/users/:username", s.handleDeleteUser())
+			UsersRoutes.POST("/users/register", s.handleRegister())
 		}
 	}
 }
