@@ -52,6 +52,14 @@ func createTables() {
 		);
 	`
 
+	userPermissionsTable := `
+		CREATE TABLE IF NOT EXISTS user_permissions (
+			id         INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+			user       TEXT    REFERENCES users (user) ON DELETE CASCADE NOT NULL,
+			permission TEXT    NOT NULL
+		);
+	`
+
 	blocksTable := `
 		CREATE TABLE IF NOT EXISTS blocks (
 			id          INTEGER PRIMARY KEY,
@@ -119,6 +127,9 @@ func createTables() {
 
 	execSQL(usersTable)
 	log.Println("Table 'users' verified/created.")
+
+	execSQL(userPermissionsTable)
+	log.Println("Table 'user_permissions' verified/created.")
 
 	execSQL(blocksTable)
 	log.Println("Table 'blocks' verified/created.")

@@ -4,10 +4,11 @@ import (
 	"errors"
 	"time"
 
+	"github.com/BrunoCardosoFS/NaxiServer/settings"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = []byte("ChaveSuperSecreta")
+var jwtKey = []byte(settings.GetSettings().JwtKey)
 
 type Claims struct {
 	Username string `json:"username"`

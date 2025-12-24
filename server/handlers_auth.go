@@ -7,6 +7,7 @@ import (
 
 	"github.com/BrunoCardosoFS/NaxiServer/auth"
 	"github.com/BrunoCardosoFS/NaxiServer/database"
+	"github.com/BrunoCardosoFS/NaxiServer/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,17 +16,10 @@ type userCredentials struct {
 	Password string `json:"password"`
 }
 
-type userCredentialsRegister struct {
-	Username string `json:"user"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Type     int    `json:"type"`
-}
-
 func (s *Server) handleRegister() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var creds userCredentialsRegister
+		var creds models.UserCredentialsRegister
+
 		if err := c.ShouldBindJSON(&creds); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON: " + err.Error()})
 			return
@@ -47,9 +41,11 @@ func (s *Server) handleRegister() gin.HandlerFunc {
 
 		if err != nil {
 			// Falta tratar os erros
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Username already exists or there's an error in the database."})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "The username or email already exists, or there is an error in the database."})
 			return
 		}
+
+		err = database.AddPermissions(creds.Username, creds.Permissions)
 
 		c.JSON(http.StatusCreated, gin.H{"message": "User created successfully."})
 	}
@@ -88,7 +84,22 @@ func (s *Server) handleLogin() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"token": tokenString, "user": user.Username, "name": user.Name, "email": user.Email, "type": user.Type})
+		permissions, err := database.GetPermissionsByUsername(user.Username, user.Type)
+		if err != nil {
+			log.Printf("Login: Error when searching for permissions: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error when searching for permissions."})
+			return
+		}
+
+		response := models.LoginResponse{
+			Token:       tokenString,
+			Username:    user.Username,
+			Name:        user.Name,
+			Email:       user.Email,
+			Permissions: permissions,
+		}
+
+		c.JSON(http.StatusOK, response)
 	}
 }
 

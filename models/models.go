@@ -3,6 +3,7 @@ package models
 type Settings struct {
 	DbPath string `json:"dbpath"`
 	Port   string `json:"port"`
+	JwtKey string `json:"token"`
 }
 
 type Folder struct {
@@ -25,4 +26,21 @@ type User struct {
 	Email        string `json:"email"`
 	PasswordHash string `json:"password_hash"`
 	Type         uint   `json:"type"`
+}
+
+type LoginResponse struct {
+	Token       string   `json:"token"`
+	Username    string   `json:"user"`
+	Name        string   `json:"name"`
+	Email       string   `json:"email"`
+	Permissions []string `json:"permissions"`
+}
+
+type UserCredentialsRegister struct {
+	Username    string   `json:"user"`
+	Name        string   `json:"name"`
+	Email       string   `json:"email"`
+	Password    string   `json:"password"`
+	Type        int      `json:"type"`
+	Permissions []string `json:"permissions"`
 }

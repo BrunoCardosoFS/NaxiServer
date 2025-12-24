@@ -19,7 +19,6 @@ func (s *Server) registerApiRoutes() {
 		api.GET("/status", s.handleApiStatus())
 		api.POST("/status", s.handleApiStatus())
 
-		api.POST("/auth/register", s.handleRegister())
 		api.POST("/auth/login", s.handleLogin())
 
 		api.GET("/catalog", s.handleApiCatalog())
@@ -30,6 +29,12 @@ func (s *Server) registerApiRoutes() {
 		{
 			protected.POST("/catalog", s.handleApiAddFolderInCatalog())
 			protected.DELETE("/users/:username", s.handleDeleteUser())
+		}
+
+		UsersRoutes := api.Group("/")
+		UsersRoutes.Use(auth.UsersMiddleware())
+		{
+			UsersRoutes.POST("/auth/register", s.handleRegister())
 		}
 	}
 }

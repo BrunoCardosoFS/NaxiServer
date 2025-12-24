@@ -1,16 +1,16 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
-	"os"
 	"os/exec"
 
 	"fyne.io/systray"
-	"github.com/BrunoCardosoFS/NaxiServer/models"
+	"github.com/BrunoCardosoFS/NaxiServer/settings"
 )
 
-func runSystray(port string) {
+func runSystray() {
+	port := settings.GetSettings().Port
+
 	systray.SetIcon(iconSuccessData)
 	systray.SetTitle("NaxiServer")
 	systray.SetTooltip("NaxiServer Online - localhost" + port)
@@ -47,49 +47,4 @@ func runSystray(port string) {
 			}
 		}
 	}()
-}
-
-func getSettings() models.Settings {
-	settingsPath := "./settings.json"
-	var setting models.Settings
-
-	fileSettings, err := os.Open(settingsPath)
-	if err != nil {
-		setting = models.Settings{
-			DbPath: "../db/",
-			Port:   ":8000",
-		}
-
-		if os.IsNotExist(err) {
-			log.Println("settings.json file not found. Creating default...")
-
-			newFile, createErr := os.Create(settingsPath)
-			if createErr != nil {
-				log.Panicf("Failed to create settings.json: %v", createErr)
-			}
-			defer newFile.Close()
-
-			encoder := json.NewEncoder(newFile)
-
-			if encodeErr := encoder.Encode(setting); encodeErr != nil {
-				log.Panicf("Failed to write to settings.json: %v", encodeErr)
-			}
-
-			log.Println("settings.json created successfully.")
-
-			return setting
-		}
-
-		log.Println(err)
-
-		return setting
-	}
-	defer fileSettings.Close()
-
-	err = json.NewDecoder(fileSettings).Decode(&setting)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	return setting
 }

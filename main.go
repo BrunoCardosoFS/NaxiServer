@@ -5,10 +5,12 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 
 	"fyne.io/systray"
 	"github.com/BrunoCardosoFS/NaxiServer/database"
 	"github.com/BrunoCardosoFS/NaxiServer/server"
+	"github.com/BrunoCardosoFS/NaxiServer/settings"
 )
 
 //go:embed icons/icon_success.ico
@@ -19,7 +21,10 @@ var iconSuccessData []byte
 
 func main() {
 	// Logs
-	fileLog, errLog := os.OpenFile("./logs.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	ex, _ := os.Executable()
+	exPath := filepath.Dir(ex)
+
+	fileLog, errLog := os.OpenFile(filepath.Join(exPath, "logs.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if errLog != nil {
 		log.Fatal(errLog)
 	}
@@ -33,10 +38,10 @@ func main() {
 }
 
 func onReady() {
-	settings := getSettings()
-	runSystray(settings.Port)
+	settings := settings.GetSettings()
+	runSystray()
 
-	database.InitDB("file:" + settings.DbPath + "naxistudio.db" + "?_journal_mode=WAL&_busy_timeout=5000")
+	database.InitDB("file:" + settings.DbPath + "/naxistudio.db" + "?_journal_mode=WAL&_busy_timeout=5000")
 
 	srv := server.NewServer(settings.DbPath)
 	if err := srv.Start(settings.Port); err != nil {
