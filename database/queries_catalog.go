@@ -1,6 +1,7 @@
 package database
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/BrunoCardosoFS/NaxiServer/models"
@@ -47,5 +48,28 @@ func AddFolderInCatalog(folder models.Folder) error {
 	}
 
 	log.Printf("Folder inserted successfully: %s", folder.Title)
+	return nil
+}
+
+func RemoveCatalogFolder(user string) error {
+	query := `DELETE FROM catalog WHERE id = ?`
+
+	result, err := DB.Exec(query, user)
+	if err != nil {
+		log.Printf("Error deleting user '%s': %v", user, err)
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	log.Printf("User successfully deleted: %s", user)
+
 	return nil
 }

@@ -38,13 +38,12 @@ func main() {
 }
 
 func onReady() {
-	settings := settings.GetSettings()
 	runSystray()
 
-	database.InitDB("file:" + settings.DbPath + "/naxistudio.db" + "?_journal_mode=WAL&_busy_timeout=5000&_foreign_keys=on")
+	database.InitDB("file:" + settings.GetSettings().DbPath + "/naxistudio.db" + "?_journal_mode=WAL&_busy_timeout=5000&_foreign_keys=on")
 
-	srv := server.NewServer(settings.DbPath)
-	if err := srv.Start(settings.Port); err != nil {
+	srv := server.NewServer(settings.GetSettings().DbPath)
+	if err := srv.Start(settings.GetSettings().Port); err != nil {
 		log.Fatal(err)
 	}
 }

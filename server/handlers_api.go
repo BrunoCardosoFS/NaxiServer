@@ -4,40 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/BrunoCardosoFS/NaxiServer/auth"
 	"github.com/BrunoCardosoFS/NaxiServer/database"
 	"github.com/BrunoCardosoFS/NaxiServer/models"
 	"github.com/gin-gonic/gin"
 )
-
-func (s *Server) registerApiRoutes() {
-	log.Println("Registrando rotas da API...")
-
-	api := s.router.Group("/api")
-	{
-		// Public Routes
-		api.GET("/status", s.handleApiStatus())
-		api.POST("/status", s.handleApiStatus())
-
-		api.POST("/auth/login", s.handleLogin())
-
-		api.GET("/catalog", s.handleApiCatalog())
-
-		// Protected Routes
-		protected := api.Group("/")
-		protected.Use(auth.AuthMiddleware())
-		{
-			protected.POST("/catalog", s.handleApiAddFolderInCatalog())
-		}
-
-		UsersRoutes := api.Group("/")
-		UsersRoutes.Use(auth.UsersMiddleware())
-		{
-			UsersRoutes.DELETE("/users/:username", s.handleDeleteUser())
-			UsersRoutes.POST("/users/register", s.handleRegister())
-		}
-	}
-}
 
 // handleApiStatus
 func (s *Server) handleApiStatus() gin.HandlerFunc {
@@ -52,7 +22,7 @@ func (s *Server) handleApiStatus() gin.HandlerFunc {
 	}
 }
 
-func (s *Server) handleApiCatalog() gin.HandlerFunc {
+func (s *Server) handleApiGetCatalog() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		categories, err := database.GetCatalog()
 		if err != nil {
@@ -65,25 +35,41 @@ func (s *Server) handleApiCatalog() gin.HandlerFunc {
 	}
 }
 
-func (s *Server) handleApiAddFolderInCatalog() gin.HandlerFunc {
+func (s *Server) handleApiAddCatalogFolder() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var newCategory models.Folder
-		if err := c.ShouldBindJSON(&newCategory); err != nil {
+		var newFolder models.Folder
+
+		err := c.ShouldBindJSON(&newFolder)
+		if err != nil {
 			log.Printf("Error binding JSON: %v", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON: " + err.Error()})
 			return
 		}
 
-		if newCategory.ID == "" || newCategory.Title == "" || newCategory.Path == "" {
+		if newFolder.ID == "" || newFolder.Title == "" || newFolder.Path == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "All fields are required."})
 			return
 		}
 
-		if err := database.AddFolderInCatalog(newCategory); err != nil {
+		if err := database.AddFolderInCatalog(newFolder); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error saving to database: " + err.Error()})
 			return
 		}
 
-		c.JSON(http.StatusCreated, newCategory)
+		c.JSON(http.StatusCreated, newFolder)
+	}
+}
+
+func (s *Server) handleApiRemoveCatalogFolder() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		folderIdToDelete := c.Param("id")
+
+		err := database.RemoveCatalogFolder(folderIdToDelete)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error saving to database: " + err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Folder successfully deleted."})
 	}
 }

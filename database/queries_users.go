@@ -1,6 +1,7 @@
 package database
 
 import (
+	"database/sql"
 	"log"
 	"strings"
 
@@ -80,9 +81,9 @@ func HasPermission(username string, permission string) bool {
 }
 
 func DeleteUser(user string) error {
-	sql := `DELETE FROM users WHERE user = ?`
+	query := `DELETE FROM users WHERE user = ?`
 
-	result, err := DB.Exec(sql, user)
+	result, err := DB.Exec(query, user)
 	if err != nil {
 		log.Printf("Error deleting user '%s': %v", user, err)
 		return err
@@ -94,7 +95,7 @@ func DeleteUser(user string) error {
 	}
 
 	if rowsAffected == 0 {
-		// return sql.ErrNoRows
+		return sql.ErrNoRows
 	}
 
 	log.Printf("User successfully deleted: %s", user)

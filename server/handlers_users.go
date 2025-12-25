@@ -16,41 +16,6 @@ type userCredentials struct {
 	Password string `json:"password"`
 }
 
-func (s *Server) handleRegister() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var creds models.UserCredentialsRegister
-
-		if err := c.ShouldBindJSON(&creds); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON: " + err.Error()})
-			return
-		}
-
-		// Falta desenvolver uma validação mais robusta
-		if len(creds.Password) < 8 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "The password must be at least 8 characters long."})
-			return
-		}
-
-		hashedPassword, err := auth.HashPassword(creds.Password)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error processing password."})
-			return
-		}
-
-		err = database.CreateUser(creds.Username, creds.Name, creds.Email, hashedPassword, creds.Type)
-
-		if err != nil {
-			// Falta tratar os erros
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "The username or email already exists, or there is an error in the database."})
-			return
-		}
-
-		err = database.AddPermissions(creds.Username, creds.Permissions)
-
-		c.JSON(http.StatusCreated, gin.H{"message": "User created successfully."})
-	}
-}
-
 func (s *Server) handleLogin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var creds userCredentials
@@ -100,6 +65,54 @@ func (s *Server) handleLogin() gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, response)
+	}
+}
+
+func (s *Server) handleRegisterUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		requesterTypeRaw, exists := c.Get("userType")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized."})
+			return
+		}
+		requesterType := requesterTypeRaw.(uint)
+
+		var creds models.UserCredentialsRegister
+
+		err := c.ShouldBindJSON(&creds)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON: " + err.Error()})
+			return
+		}
+
+		if requesterType != 0 && creds.Type == 0 {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		}
+
+		// Falta desenvolver uma validação mais robusta
+		if len(creds.Password) < 8 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "The password must be at least 8 characters long."})
+			return
+		}
+
+		hashedPassword, err := auth.HashPassword(creds.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error processing password."})
+			return
+		}
+
+		err = database.CreateUser(creds.Username, creds.Name, creds.Email, hashedPassword, creds.Type)
+
+		if err != nil {
+			// Falta tratar os erros
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "The username or email already exists, or there is an error in the database."})
+			return
+		}
+
+		err = database.AddPermissions(creds.Username, creds.Permissions)
+
+		c.JSON(http.StatusCreated, gin.H{"message": "User created successfully."})
 	}
 }
 

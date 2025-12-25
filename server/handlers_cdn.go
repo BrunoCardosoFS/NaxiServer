@@ -1,7 +1,6 @@
 package server
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -11,41 +10,6 @@ import (
 	"github.com/BrunoCardosoFS/NaxiServer/models"
 	"github.com/gin-gonic/gin"
 )
-
-func (s *Server) registerCdnRoutes() {
-	catalogPath := s.dbPath + "/catalog.json"
-
-	file, err := os.Open(catalogPath)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
-	var folder []models.Folder
-	err = json.NewDecoder(file).Decode(&folder)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	cdnGroup := s.router.Group("/cdn")
-
-	for _, info := range folder {
-		categoryID := info.ID
-		categoryPath := info.Path
-		cdnURLPrefix := "/cdn/" + categoryID
-
-		cdnGroup.GET("/"+categoryID, s.handleCdnList(categoryPath))
-
-		fileRoute := "/" + categoryID + "/*filepath"
-		fileServerHandler := http.FileServer(http.Dir(categoryPath))
-		strippedHandler := http.StripPrefix(cdnURLPrefix, fileServerHandler)
-
-		cdnGroup.GET(fileRoute, gin.WrapH(strippedHandler))
-
-		log.Printf("Server CDN: Title: %s | API: %s | Files: %s/* | Path: %s",
-			info.Title, cdnURLPrefix, cdnURLPrefix, categoryPath)
-	}
-}
 
 func (s *Server) handleCdnList(path string) gin.HandlerFunc {
 	return func(c *gin.Context) {
