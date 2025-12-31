@@ -18,7 +18,7 @@ if (Test-Path $BuildDir) { Remove-Item -Recurse -Force $BuildDir }
 New-Item -ItemType Directory -Path $BuildDir
 
 Write-Host "--- Compiling ---"
-go build -ldflags="-s -w" -o $BuildDir/$ProjectName/$ProjectName.exe
+go build -ldflags="-s -w -H windowsgui" -o $BuildDir/$ProjectName/$ProjectName.exe
 
 Write-Host "--- Preparing Deploy ---"
 Copy-Item "COPYING" -Destination "$BuildDir\$ProjectName" -Force
